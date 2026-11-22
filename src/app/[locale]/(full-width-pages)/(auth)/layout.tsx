@@ -2,7 +2,6 @@ import GridShape from "@/components/common/grid-shape";
 import ThemeToggler from "@/components/common/theme-toggler";
 import { ThemeProvider } from "@/context/theme-context";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -20,15 +19,12 @@ export default function AuthLayout({
 
               <div className="flex max-w-xs flex-col items-center">
                 <Link href="/" className="mb-4 block">
-                  <Image
-                    width={231}
-                    height={48}
-                    src="/images/logo/auth-logo.svg"
-                    alt="Logo"
-                  />
+                  <span className="text-3xl font-semibold text-white">
+                    CoreiCode Team
+                  </span>
                 </Link>
                 <p className="text-center text-gray-400 dark:text-white/60">
-                  Free and Open-Source Tailwind CSS Admin Dashboard Template
+                  Blogs, products, and member management in one place.
                 </p>
               </div>
             </div>

@@ -16,7 +16,6 @@ import ThemeToggleButton from "@/layout/header/theme-toggler";
 import UserDropdown from "@/layout/header/user-dropdown";
 import { cn } from "@/utils";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 interface AppHeaderProps {
@@ -71,20 +70,9 @@ export default function AppHeader({ user }: AppHeaderProps) {
           </Button>
 
           <Link href="/" className="xl:hidden">
-            <Image
-              width={154}
-              height={32}
-              className="dark:hidden"
-              src="/images/logo/logo.svg"
-              alt="Logo"
-            />
-            <Image
-              width={154}
-              height={32}
-              className="hidden dark:block"
-              src="/images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">
+              CoreiCode Team
+            </span>
           </Link>
 
           <Button

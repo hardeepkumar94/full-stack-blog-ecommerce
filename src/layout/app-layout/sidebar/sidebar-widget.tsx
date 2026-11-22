@@ -12,7 +12,7 @@ export default function SidebarWidget() {
         {t("description")}
       </p>
       <a
-        href="https://tailadmin.com/pricing"
+        href="/"
         target="_blank"
         rel="nofollow"
         className="flex items-center justify-center rounded-lg bg-brand-500 p-3 text-sm font-medium text-white hover:bg-brand-600"

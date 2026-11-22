@@ -2,9 +2,9 @@ import Error404 from "@/components/main/pages/error-404";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Error 404 Page | TailAdmin - Next.js Dashboard Template",
+  title: "Page Not Found | CoreiCode Team",
   description:
-    "This is Next.js Error 404 page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    "The requested CoreiCode Team page could not be found.",
 };
 
 export default function Error404Page() {

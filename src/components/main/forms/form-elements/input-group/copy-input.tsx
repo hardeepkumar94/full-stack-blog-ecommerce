@@ -10,7 +10,7 @@ import { CheckIcon, CopyIcon } from "@/icons";
 import { useState } from "react";
 
 export default function CopyInput() {
-  const [value, setValue] = useState("www.tailadmin.com");
+  const [value, setValue] = useState("www.coreicode.com");
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -31,7 +31,7 @@ export default function CopyInput() {
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="www.tailadmin.com"
+          placeholder="www.coreicode.com"
         />
         <InputGroupAddon
           align="inline-end"

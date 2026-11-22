@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const MOBILE_BREAKPOINT = 1280; // xl breakpoint — matches TailAdmin sidebar's xl:translate-x-0
+const MOBILE_BREAKPOINT = 1280; // xl breakpoint — matches the admin sidebar
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
