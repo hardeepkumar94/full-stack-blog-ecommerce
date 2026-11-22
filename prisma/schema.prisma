@@ -12,6 +12,15 @@ enum UserRole {
   ADMIN
 }
 
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id                    String                 @id @default(cuid())
   name                  String
@@ -22,6 +31,7 @@ model User {
   emailVerificationCode EmailVerificationCode?
   blogs                Blog[]
   products             Product[]
+  orders               Order[]
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
 }
@@ -51,11 +61,47 @@ model Product {
   isPublished Boolean  @default(true)
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([authorId])
   @@index([isPublished, createdAt])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String
+  status          OrderStatus @default(PLACED)
+  paymentMethod   String      @default("COD") @db.VarChar(20)
+  totalCents      Int
+  customerName    String
+  phone           String      @db.VarChar(30)
+  addressLine     String      @db.Text
+  city            String
+  postalCode      String      @db.VarChar(20)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  productId      String
+  productName    String
+  unitPriceCents Int
+  quantity       Int
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model EmailVerificationCode {

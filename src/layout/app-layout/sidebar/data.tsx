@@ -1,4 +1,10 @@
-import { BoxIcon, FileIcon, LayoutGridIcon, UsersIcon } from "@/icons";
+import {
+  BoxIcon,
+  FileIcon,
+  LayoutGridIcon,
+  ListIcon,
+  UsersIcon,
+} from "@/icons";
 import type { NavItem } from "./types";
 
 export const navItems: NavItem[] = [
@@ -21,6 +27,11 @@ export const navItems: NavItem[] = [
     icon: <UsersIcon className="size-6" />,
     key: "users",
     path: "/admin/users",
+  },
+  {
+    icon: <ListIcon className="size-6" />,
+    key: "orders",
+    path: "/admin/orders",
   },
 ];
 

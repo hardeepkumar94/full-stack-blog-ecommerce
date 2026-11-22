@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth, signOut } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import AddToCartButton from "@/components/shop/add-to-cart-button";
 
 export const metadata: Metadata = {
   title: "Welcome | Full Stack Project",
@@ -50,6 +51,18 @@ export default async function HomePage() {
                   You are signed in as {session.user.email}.
                 </p>
                 <div className="mt-7 flex flex-col gap-3">
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex min-h-12 items-center justify-center rounded-lg bg-brand-500 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+                  >
+                    My dashboard
+                  </Link>
+                  <Link
+                    href="/cart"
+                    className="inline-flex min-h-12 items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 dark:border-gray-600 dark:text-gray-200"
+                  >
+                    View cart
+                  </Link>
                   {session.user.role === "ADMIN" && (
                     <Link
                       href="/admin"
@@ -126,6 +139,9 @@ export default async function HomePage() {
                     <p className="mt-4 font-semibold text-brand-500">
                       ${(product.priceCents / 100).toFixed(2)}
                     </p>
+                    <div className="mt-4">
+                      <AddToCartButton product={product} />
+                    </div>
                   </article>
                 ))
               )}

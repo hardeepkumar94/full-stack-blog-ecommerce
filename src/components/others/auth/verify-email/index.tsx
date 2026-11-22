@@ -9,10 +9,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 
-export default function VerifyEmail({ initialEmail }: { initialEmail: string }) {
+export default function VerifyEmail({
+  initialEmail,
+}: {
+  initialEmail: string;
+}) {
+  const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState("");
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -25,7 +30,11 @@ export default function VerifyEmail({ initialEmail }: { initialEmail: string }) 
     setIsSubmitting(true);
 
     try {
-      setResult(await verifyEmailCode({ email, code }));
+      const verificationResult = await verifyEmailCode({ email, code });
+      setResult(verificationResult);
+      if (verificationResult.success) {
+        router.push("/signin");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -46,7 +55,7 @@ export default function VerifyEmail({ initialEmail }: { initialEmail: string }) 
     <div className="flex w-full flex-1 flex-col lg:w-1/2">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div className="mb-5 sm:mb-8">
-          <h1 className="mb-2 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90">
+          <h1 className="sm:text-title-md mb-2 text-title-sm font-semibold text-gray-800 dark:text-white/90">
             Verify your email
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">

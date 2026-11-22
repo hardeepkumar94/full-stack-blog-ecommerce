@@ -10,7 +10,10 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const emailSchema = z.string().trim().email().toLowerCase();
-const codeSchema = z.string().trim().regex(/^\d{6}$/);
+const codeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/);
 
 export type VerificationResult =
   | { success: true; message: string }
@@ -88,7 +91,7 @@ export async function verifyEmailCode({
 
   return {
     success: true,
-    message: "Email verified successfully. You can now sign in.",
+    message: "Email verified successfully. Redirecting you to sign in...",
   };
 }
 

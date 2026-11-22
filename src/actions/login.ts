@@ -5,8 +5,7 @@ import { signInSchema, type SignInFormData } from "@/lib/auth/validation";
 import { AuthError } from "next-auth";
 
 export type LoginResult =
-  | { success: true }
-  | { success: false; message: string };
+  { success: true } | { success: false; message: string };
 
 export async function loginUser(input: SignInFormData): Promise<LoginResult> {
   const parsed = signInSchema.safeParse(input);
@@ -22,7 +21,7 @@ export async function loginUser(input: SignInFormData): Promise<LoginResult> {
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: "/",
+      redirectTo: "/dashboard",
     });
   } catch (error) {
     if (error instanceof AuthError) {

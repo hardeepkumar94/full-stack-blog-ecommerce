@@ -92,3 +92,27 @@ export async function changeUserRole(formData: FormData) {
 
   revalidatePath("/admin/users");
 }
+
+export async function changeOrderStatus(formData: FormData) {
+  await requireAdmin();
+  const input = z
+    .object({
+      orderId: z.string().min(1),
+      status: z.enum([
+        "PLACED",
+        "CONFIRMED",
+        "SHIPPED",
+        "OUT_FOR_DELIVERY",
+        "DELIVERED",
+        "CANCELLED",
+      ]),
+    })
+    .parse(Object.fromEntries(formData));
+
+  await prisma.order.update({
+    where: { id: input.orderId },
+    data: { status: input.status },
+  });
+  revalidatePath("/admin/orders");
+  revalidatePath("/dashboard");
+}
