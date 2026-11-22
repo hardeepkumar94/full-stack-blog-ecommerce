@@ -1,6 +1,11 @@
+"use client";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { ContentActionState } from "@/lib/admin/actions";
+import { useActionState, useEffect, useRef } from "react";
 
 interface Field {
   label: string;
@@ -10,7 +15,10 @@ interface Field {
 }
 
 interface ContentFormProps {
-  action: (formData: FormData) => Promise<void>;
+  action: (
+    previousState: ContentActionState,
+    formData: FormData,
+  ) => Promise<ContentActionState>;
   fields: Field[];
   submitLabel: string;
 }
@@ -20,8 +28,23 @@ export default function ContentForm({
   fields,
   submitLabel,
 }: ContentFormProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction, pending] = useActionState(action, {
+    success: false,
+    message: "",
+  });
+
+  useEffect(() => {
+    if (state.success) formRef.current?.reset();
+  }, [state]);
+
   return (
-    <form action={action} className="space-y-5">
+    <form ref={formRef} action={formAction} className="space-y-5">
+      {state.message && (
+        <Alert variant={state.success ? "success" : "destructive"}>
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      )}
       {fields.map((field) => (
         <label key={field.name} className="block">
           <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -46,7 +69,9 @@ export default function ContentForm({
           )}
         </label>
       ))}
-      <Button type="submit">{submitLabel}</Button>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Publishing..." : submitLabel}
+      </Button>
     </form>
   );
 }

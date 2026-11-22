@@ -13,16 +13,16 @@ const optionalUrl = z
   });
 
 const blogSchema = z.object({
-  title: z.string().trim().min(3).max(191),
-  excerpt: z.string().trim().min(10).max(1000),
-  content: z.string().trim().min(20),
+  title: z.string().trim().min(3, "Blog title must contain at least 3 characters.").max(191),
+  excerpt: z.string().trim().min(10, "Blog excerpt must contain at least 10 characters.").max(1000),
+  content: z.string().trim().min(20, "Blog content must contain at least 20 characters."),
   imageUrl: optionalUrl,
 });
 
 const productSchema = z.object({
-  name: z.string().trim().min(2).max(191),
-  description: z.string().trim().min(10).max(5000),
-  price: z.coerce.number().positive().max(1000000),
+  name: z.string().trim().min(2, "Product name must contain at least 2 characters.").max(191),
+  description: z.string().trim().min(10, "Product description must contain at least 10 characters.").max(5000),
+  price: z.coerce.number().positive("Product price must be greater than zero.").max(1000000),
   imageUrl: optionalUrl,
 });
 
@@ -36,40 +36,69 @@ async function requireAdmin() {
   return session.user;
 }
 
-export async function createBlog(formData: FormData) {
-  const admin = await requireAdmin();
-  const input = blogSchema.parse(Object.fromEntries(formData));
-
-  await prisma.blog.create({
-    data: {
-      title: input.title,
-      excerpt: input.excerpt,
-      content: input.content,
-      imageUrl: input.imageUrl || null,
-      authorId: admin.id,
-    },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/admin/blogs");
+export interface ContentActionState {
+  success: boolean;
+  message: string;
 }
 
-export async function createProduct(formData: FormData) {
-  const admin = await requireAdmin();
-  const input = productSchema.parse(Object.fromEntries(formData));
+function actionError(error: unknown) {
+  if (error instanceof z.ZodError) {
+    return error.issues[0]?.message ?? "Check the form fields and try again.";
+  }
 
-  await prisma.product.create({
-    data: {
-      name: input.name,
-      description: input.description,
-      priceCents: Math.round(input.price * 100),
-      imageUrl: input.imageUrl || null,
-      authorId: admin.id,
-    },
-  });
+  return error instanceof Error ? error.message : "Something went wrong. Please try again.";
+}
 
-  revalidatePath("/");
-  revalidatePath("/admin/products");
+export async function createBlog(
+  _previousState: ContentActionState,
+  formData: FormData,
+): Promise<ContentActionState> {
+  try {
+    const admin = await requireAdmin();
+    const input = blogSchema.parse(Object.fromEntries(formData));
+
+    await prisma.blog.create({
+      data: {
+        title: input.title,
+        excerpt: input.excerpt,
+        content: input.content,
+        imageUrl: input.imageUrl || null,
+        authorId: admin.id,
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/blogs");
+    return { success: true, message: "Blog published successfully." };
+  } catch (error) {
+    return { success: false, message: actionError(error) };
+  }
+}
+
+export async function createProduct(
+  _previousState: ContentActionState,
+  formData: FormData,
+): Promise<ContentActionState> {
+  try {
+    const admin = await requireAdmin();
+    const input = productSchema.parse(Object.fromEntries(formData));
+
+    await prisma.product.create({
+      data: {
+        name: input.name,
+        description: input.description,
+        priceCents: Math.round(input.price * 100),
+        imageUrl: input.imageUrl || null,
+        authorId: admin.id,
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/products");
+    return { success: true, message: "Product published successfully." };
+  } catch (error) {
+    return { success: false, message: actionError(error) };
+  }
 }
 
 export async function changeUserRole(formData: FormData) {
