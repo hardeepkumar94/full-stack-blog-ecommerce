@@ -1,34 +1,37 @@
-import DemographicCard from "@/components/main/dashboard/ecommerce/demographic-card";
-import EcommerceMetrics from "@/components/main/dashboard/ecommerce/metrics";
-import MonthlySalesChart from "@/components/main/dashboard/ecommerce/monthly-sales-chart";
-import MonthlyTarget from "@/components/main/dashboard/ecommerce/monthly-target";
-import RecentOrders from "@/components/main/dashboard/ecommerce/recent-orders";
-import StatisticsChart from "@/components/main/dashboard/ecommerce/statistics-chart";
+import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard | Full Stack Project",
-  description: "Project administration dashboard.",
 };
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const [blogs, products, users] = await Promise.all([
+    prisma.blog.count(),
+    prisma.product.count(),
+    prisma.user.count(),
+  ]);
+  const cards = [
+    { label: "Blogs", count: blogs, href: "/admin/blogs" },
+    { label: "Products", count: products, href: "/admin/products" },
+    { label: "Users", count: users, href: "/admin/users" },
+  ];
+
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
-        <EcommerceMetrics />
-        <MonthlySalesChart />
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Manage the content shown to signed-in members.</p>
       </div>
-      <div className="col-span-12 xl:col-span-5">
-        <MonthlyTarget />
-      </div>
-      <div className="col-span-12">
-        <StatisticsChart />
-      </div>
-      <div className="col-span-12 xl:col-span-5">
-        <DemographicCard />
-      </div>
-      <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
+      <div className="grid gap-5 sm:grid-cols-3">
+        {cards.map((card) => (
+          <Link key={card.label} href={card.href} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-xs transition hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
+            <p className="mt-3 text-3xl font-semibold text-gray-900 dark:text-white">{card.count}</p>
+            <p className="mt-4 text-sm font-medium text-brand-500">Manage {card.label.toLowerCase()}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );

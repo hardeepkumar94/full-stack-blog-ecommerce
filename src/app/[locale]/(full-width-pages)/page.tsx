@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth, signOut } from "@/auth";
 import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Welcome | Full Stack Project",
@@ -9,13 +10,25 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const session = await auth();
+  const [blogs, products] = session?.user
+    ? await Promise.all([
+        prisma.blog.findMany({
+          where: { isPublished: true },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.product.findMany({
+          where: { isPublished: true },
+          orderBy: { createdAt: "desc" },
+        }),
+      ])
+    : [[], []];
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-16 dark:bg-gray-900">
-      <div className="w-full max-w-5xl rounded-3xl bg-white shadow-theme-md dark:bg-gray-800">
+    <main className="min-h-screen bg-gray-50 px-6 py-16 dark:bg-gray-900">
+      <div className="mx-auto w-full max-w-5xl rounded-3xl bg-white shadow-theme-md dark:bg-gray-800">
         <div className="grid gap-10 p-8 sm:p-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <section>
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">
+            <p className="mb-4 text-sm font-semibold tracking-[0.2em] text-brand-500 uppercase">
               Full Stack Project
             </p>
             <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white">
@@ -87,6 +100,65 @@ export default async function HomePage() {
           </section>
         </div>
       </div>
+      {session?.user && (
+        <div className="mx-auto mt-10 w-full max-w-5xl space-y-10">
+          <section>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              Latest products
+            </h2>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {products.length === 0 ? (
+                <p className="text-gray-500 dark:text-gray-400">
+                  No products have been published yet.
+                </p>
+              ) : (
+                products.map((product) => (
+                  <article
+                    key={product.id}
+                    className="rounded-2xl bg-white p-6 shadow-theme-xs dark:bg-gray-800"
+                  >
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {product.name}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                      {product.description}
+                    </p>
+                    <p className="mt-4 font-semibold text-brand-500">
+                      ${(product.priceCents / 100).toFixed(2)}
+                    </p>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+          <section>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              Latest blogs
+            </h2>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              {blogs.length === 0 ? (
+                <p className="text-gray-500 dark:text-gray-400">
+                  No blogs have been published yet.
+                </p>
+              ) : (
+                blogs.map((blog) => (
+                  <article
+                    key={blog.id}
+                    className="rounded-2xl bg-white p-6 shadow-theme-xs dark:bg-gray-800"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {blog.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                      {blog.excerpt}
+                    </p>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
