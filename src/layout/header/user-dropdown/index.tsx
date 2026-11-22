@@ -26,9 +26,17 @@ import {
 import { cn } from "@/utils";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 
-export default function UserDropdown() {
+interface UserDropdownProps {
+  user: {
+    name?: string | null;
+    email?: string | null;
+  };
+}
+
+export default function UserDropdown({ user }: UserDropdownProps) {
   const t = useTranslations("userDropdown");
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -54,7 +62,9 @@ export default function UserDropdown() {
           />
         </span>
 
-        <span className="me-1 block text-sm font-medium">Musharof</span>
+        <span className="me-1 block text-sm font-medium">
+          {user.name ?? "Administrator"}
+        </span>
 
         <ChevronDownIcon
           className={cn(
@@ -67,10 +77,10 @@ export default function UserDropdown() {
       <DropdownMenuContent align="end" sideOffset={12} className="w-65 p-3">
         <div className="px-3 py-2">
           <span className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-            Musharof Chowdhury
+            {user.name ?? "Administrator"}
           </span>
           <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
+            {user.email}
           </span>
         </div>
 
@@ -155,7 +165,7 @@ export default function UserDropdown() {
 
         <DropdownMenuItem
           variant="destructive"
-          render={<Link href="/signin" />}
+          onClick={() => signOut({ callbackUrl: "/" })}
         >
           <LogOutIcon />
           {t("signOut")}

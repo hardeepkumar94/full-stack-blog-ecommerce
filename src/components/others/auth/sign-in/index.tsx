@@ -3,10 +3,8 @@
 import { Link } from "@/i18n/navigation";
 import { ChevronLeftIcon } from "@/icons";
 import { cn } from "@/utils";
-import AuthDivider from "../divider";
 import SignInFormFields from "./form";
 import SignInHeader from "./header";
-import { SocialButtons } from "./social-button";
 
 export default function SignIn() {
   return (
@@ -17,7 +15,7 @@ export default function SignIn() {
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="rtl:rotate-180" />
-          Back to dashboard
+          Back to home
         </Link>
       </div>
 
@@ -26,8 +24,6 @@ export default function SignIn() {
           <SignInHeader />
 
           <div>
-            <SocialButtons />
-            <AuthDivider />
             <SignInFormFields />
 
             <div className="mt-5">

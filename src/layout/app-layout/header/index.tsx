@@ -19,7 +19,14 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-export default function AppHeader() {
+interface AppHeaderProps {
+  user: {
+    name?: string | null;
+    email?: string | null;
+  };
+}
+
+export default function AppHeader({ user }: AppHeaderProps) {
   const t = useTranslations("header");
   const inputRef = useRef<HTMLInputElement>(null);
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -132,7 +139,7 @@ export default function AppHeader() {
 
             <NotificationDropdown />
           </div>
-          <UserDropdown />
+          <UserDropdown user={user} />
         </div>
       </div>
     </header>

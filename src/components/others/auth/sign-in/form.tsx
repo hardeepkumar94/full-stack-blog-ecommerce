@@ -1,7 +1,8 @@
 "use client";
 
+import { loginUser, type LoginResult } from "@/actions/login";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,33 +11,33 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Link } from "@/i18n/navigation";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { signInSchema, type SignInFormData } from "./schema";
 
 export default function SignInFormFields() {
   const [showPassword, setShowPassword] = useState(false);
+  const [result, setResult] = useState<LoginResult | null>(null);
 
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
-      keepLoggedIn: false,
     },
     mode: "onTouched",
   });
 
-  const handleFormSubmit = async (_data: SignInFormData) => {
-    // handle submit action
+  const handleFormSubmit = async (data: SignInFormData) => {
+    setResult(null);
+    const loginResult = await loginUser(data);
+    setResult(loginResult);
   };
 
   return (
@@ -45,6 +46,12 @@ export default function SignInFormFields() {
       className="space-y-5"
       noValidate
     >
+      {result && !result.success && (
+        <Alert variant="destructive">
+          <AlertDescription>{result.message}</AlertDescription>
+        </Alert>
+      )}
+
       <Field data-invalid={Boolean(errors.email)}>
         <FieldLabel className="mb-1.5 block">
           Email <span className="text-red-500">*</span>
@@ -71,6 +78,7 @@ export default function SignInFormFields() {
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
+              type="button"
               size="icon-xs"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Hide password" : "Show password"}
@@ -86,34 +94,6 @@ export default function SignInFormFields() {
         </InputGroup>
         <FieldError errors={[errors.password]} />
       </Field>
-
-      <div className="flex items-center justify-between">
-        <Field orientation="horizontal" className="w-auto items-center gap-3">
-          <Controller
-            control={control}
-            name="keepLoggedIn"
-            render={({ field }) => (
-              <Checkbox
-                id="keep-logged-in"
-                checked={field.value}
-                onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-              />
-            )}
-          />
-          <FieldLabel
-            htmlFor="keep-logged-in"
-            className="text-theme-sm block cursor-pointer font-normal text-gray-700 dark:text-gray-400"
-          >
-            Keep me logged in
-          </FieldLabel>
-        </Field>
-        <Link
-          href="/reset-password"
-          className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-        >
-          Forgot password?
-        </Link>
-      </div>
 
       <div>
         <Button

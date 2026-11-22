@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { registerUser, type RegisterResult } from "@/actions/register";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -11,19 +13,24 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
+import { useRouter } from "@/i18n/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { signUpSchema, type SignUpFormData } from "./schema";
 
 export default function SignUpFormFields() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [result, setResult] = useState<RegisterResult | null>(null);
 
   const {
     register,
     handleSubmit,
     control,
+    reset,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -38,8 +45,23 @@ export default function SignUpFormFields() {
     mode: "onTouched",
   });
 
-  const handleFormSubmit = async (_data: SignUpFormData) => {
-    // handle submit action
+  const handleFormSubmit = async (data: SignUpFormData) => {
+    setResult(null);
+
+    const registrationResult = await registerUser(data);
+
+    if (!registrationResult.success && registrationResult.field === "email") {
+      setError("email", { message: registrationResult.message });
+    }
+
+    if (registrationResult.success) {
+      reset();
+      router.push(
+        `/verify-email?email=${encodeURIComponent(registrationResult.email)}`,
+      );
+    }
+
+    setResult(registrationResult);
   };
 
   return (
@@ -48,6 +70,12 @@ export default function SignUpFormFields() {
       className="space-y-5"
       noValidate
     >
+      {result && (
+        <Alert variant={result.success ? "success" : "destructive"}>
+          <AlertDescription>{result.message}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field data-invalid={Boolean(errors.fname)}>
           <FieldLabel className="mb-1.5 block">
@@ -102,6 +130,7 @@ export default function SignUpFormFields() {
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
+              type="button"
               size="icon-xs"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Hide password" : "Show password"}
@@ -131,6 +160,7 @@ export default function SignUpFormFields() {
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
+              type="button"
               size="icon-xs"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
               aria-label={
