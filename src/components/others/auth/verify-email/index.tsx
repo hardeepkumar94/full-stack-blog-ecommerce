@@ -33,6 +33,7 @@ export default function VerifyEmail({
       const verificationResult = await verifyEmailCode({ email, code });
       setResult(verificationResult);
       if (verificationResult.success) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1800));
         router.push("/signin");
       }
     } finally {
